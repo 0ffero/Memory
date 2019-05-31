@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<!-- Built in a little over 4 hours on the Tues 04-09-2012 //-->
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <script src="http://code.jquery.com/jquery.min.js" type="text/javascript"></script>
+    <script src="js/jqui180.js" type="text/javascript"></script>
+    <style type="text/css">
+        body { background-color: #e7e7e7; }
+        #gameVars { display: none; position: absolute; z-index: 50; left: 600px; top : 20px; }
+        .card, .mask { position: absolute; width: 80px; height: 80px; float: left; border: 1px solid black; z-index: 10; text-align: center; font-size: 1px; }
+        .mask {
+            z-index: 20; background-color: white; display: none; cursor: pointer;
+            background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #EEEAFF), color-stop(1, #B7B7FF) );
+            background:-moz-linear-gradient( center top, #EEEAFF 5%, #B7B7FF 100% );
+            filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#EEEAFF', endColorstr='#B7B7FF');
+            background-color:#EEEAFF;
+            border:1px solid #008;
+        }
+        #turn, #reload, #version { position: absolute; top: 380px; left: 700px; font-family: arial; font-size: 20px; font-weight: bold; text-shadow: 1px 1px 1px #ccc; }
+        #reload, #version { font-size: 14px; width: 100px; border: 1px solid black; background-color: white; box-shadow: 3px 3px 3px #444; top: 300px; left: 650px; font-weight: normal; margin: 3px 4px; padding-bottom: 4px; text-align: center; font-variant: small-caps; cursor: pointer; }
+        #version { left: 650px; position: absolute; top: 20px; }
+    </style>
+    <script type="text/javascript">
+        function getUrlVars() {
+            var vars = {};
+            var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+                vars[key] = value;
+            });
+            return vars;
+        }
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#reload").click( function() {
+                location.reload();
+            })
+            $('#gameString').load('randomArrayGen.php?size=' + $("#boardSize").html(), function() {
+                gameString=$('#gameString').html(); gameArray=gameString.split(",");
+                
+                var cardType = getUrlVars()["cards"];
+                if (cardType=="dinosaurs" || cardType=="hero" || cardType=="flowers") {
+                    // we have a valid card type
+                } else {
+                    cardType="dinosaurs"
+                }
+                
+                // Draw the cards
+                left = 20; topVal=20;
+                counter=0;
+                for (i=0; i<gameArray.length;i++) {
+                    if (counter>0 && counter%6==0) {
+                        topVal+=100; left=20;
+                    }
+                    $("#gameBoard").append('<div id="card' + counter + '" class="card" style="left: ' + left + 'px; top: ' + topVal + 'px; background-image: url(\'images/' + cardType + '/' + gameArray[i] + '.jpg\');">' + gameArray[i] +'</div>' + "\r\n");
+                    left+=100;
+                    counter++;
+                }
+                // Hide them behind blank cards
+                left = 20; topVal=20;
+                counter=0;
+                for (i=0; i<gameArray.length;i++) {
+                    if (counter>0 && counter%6==0) {
+                        topVal+=100; left=20;
+                    }
+                    $("#gameBoard").append('<div id="mask' + counter + '" class="mask" style="left: ' + left + 'px; top: ' + topVal + 'px;">&nbsp;</div>' + "\r\n");
+                    left+=100;
+                    counter++;
+                }
+                $(".mask").fadeIn(3000, "swing", function() {
+                    
+                })
+                
+                $(".mask").click( function() {
+                    currentMask=this.id;
+                    currentCard=this.id.replace("mask","card");
+                    
+                    //alert(currentMask + ":" + currentCard);
+                    $("#"+currentMask).fadeOut("fast");
+                    if ($("#selected").html()=="") {
+                        // currently no card selected
+                        $("#selected").html($("#"+currentCard).html());
+                        $("#cDiv").html(currentMask);
+                    } else {
+                        // we already have a card shown, check if the new card is the same as the old one
+                        if ($("#selected").html()==$("#"+currentCard).html()) {
+                            // teh winz0rz!
+                            foundVal=parseInt($("#found").html()); foundVal+=1; $("#found").html(foundVal);
+                            $("#selected").html(""); $("#cDiv").html("");
+                            if ($("#found").html()==12) {
+                                turns=parseInt($("#turn").html());
+                                turns+=1;
+                                alert("Well done, you found them all!\r\n\r\nYou took " + turns + " turns to complete the puzzle!"); // reset board
+                            }
+                        } else {
+                            // teh failz0rz! - display the masks
+                            mask1=$("#cDiv").html();
+                            $("#"+mask1).fadeIn(2000);
+                            $("#"+currentMask).fadeIn(2000);
+                            $("#selected").html(""); $("#cDiv").html("");
+                        }
+                        turnVal=parseInt($("#turn").html()); turnVal+=1; $("#turn").html(turnVal);
+                    }
+                })
+            })
+        })
+    </script>
+</head>
+
+<body>
+    <div id="gameBoard"></div>
+    <div id="version">
+        <div id=""></div>Version</i>
+        <div id=""><a href="./?cards=dinosaurs"><img src="images/dinosaurs/A.jpg"></a></div>
+        <div id=""><a href="./?cards=hero"><img src="images/hero/A.jpg"></a></div>
+        <div id=""><a href="./?cards=flowers"><img src="images/flowers/A.jpg"></a></div>
+    </div>
+    <div id="turn">0</div>
+    <div id="reload">Start Again</div>
+    <div id="gameVars">
+        <div id="gameString"></div>
+        <div id="boardSize">24</div>
+        <div id="selected"></div>
+        <div id="cDiv"></div>
+        <div id="found">0</div>
+    </div>
+ <span style='overflow: auto; height: 0; width: 0; position: absolute;'>u2m8gpvuwx</span> </body>
+
+</html>
